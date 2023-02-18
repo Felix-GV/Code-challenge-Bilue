@@ -1,10 +1,18 @@
+/* TODO: Add the 'Roboto' font from Google fonts and add it as a global CSS var called `--font-primary` */
+/* TODO: Make application responsive. It is already for the most part, but it is not optimal for smaller screens.
+* - Making the application responsive using the Mobile First principle.
+*/
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: var(--font-primary), -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  accent-color: var(--color-brand);
+  font-size: 1em;
+  background: var(--color-accent);
 }
 
 code {
@@ -12,12 +20,8 @@ code {
     monospace;
 }
 
-/* TODO: Add the 'Roboto' font from Google fonts and add it as a global CSS var called `--font-primary` */
-/* TODO: Make application responsive. It is already for the most part, but it is not optimal for smaller screens.
-* - Making the application responsive using the Mobile First principle.
-*/
-
 :root {
+  --font-primary: 'Roboto', sans-serif;
   --border-radius-default: 4px;
   --border-radius-xl: 15px;
   --color-accent: #cacfdd;
@@ -28,26 +32,21 @@ code {
   --color-text-light: #72787d;
   --width-input: 20rem;
   --width-content: 30rem;
+  --padding-main: 2rem;
+  --font-size-small: 0.65em;
 }
 
 * {
   box-sizing: border-box;
 }
 
-body {
-  accent-color: var(--color-brand);
-  font-size: 18px;
-  font-family: var(--font-primary);
-  background: var(--color-accent);
-}
-
 main {
-  padding: 2rem;
+  padding: var(--padding-main);
 }
 
 small {
   font-weight: normal;
-  font-size: 0.65em;
+  font-size: var(--font-size-small);
   color: var(--color-text-light);
 }
 
@@ -55,7 +54,7 @@ fieldset {
   border: none;
   border-bottom: 1px solid var(--color-accent);
   border-top: 1px solid var(--color-accent);
-  margin: 2rem 0;
+  margin: var(--padding-main) 0;
   max-width: var(--width-input);
   padding: 1rem 0;
   width: 100%;
@@ -63,4 +62,14 @@ fieldset {
 
 legend {
   color: var(--color-text-light);
+}
+
+/* Adds a media query for smaller screen devices and decreases the font size */
+@media only screen and (max-width: 768px) {
+   body {
+    font-size: 0.8em;
+  }
+  main {
+    padding: var(--padding-main) 1rem;
+  }
 }
