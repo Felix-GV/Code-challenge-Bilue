@@ -15,86 +15,94 @@ import ErrorMessage from "./ui/components/ErrorMessage/ErrorMessage";
 import * as styles from "../styles/App.module.css";
 
 function App() {
-
   const { fields, handleFieldChange } = useFormFields({
-    postCode: '',
-    houseNumber: '',
-    firstName: '',
-    lastName: '',
+    postCode: "",
+    houseNumber: "",
+    firstName: "",
+    lastName: "",
   });
 
   const { loadSavedAddresses, addAddress } = useAddressBook();
 
   const { postCode, houseNumber, firstName, lastName } = fields;
-  
+
   const handlePostCodeChange = handleFieldChange;
-  
+
   const handleHouseNumberChange = handleFieldChange;
-  
+
+  const handleSelectedAddressChange = handleFieldChange;
+
   const handleFirstNameChange = handleFieldChange;
-  
+
   const handleLastNameChange = handleFieldChange;
 
   const [error, setError] = useState(undefined);
   const [addresses, setAddresses] = useState([]);
-  const [selectedAddress, setSelectedAddress] = useState('');
+  const [selectedAddress, setSelectedAddress] = useState("");
 
   const handleAddressSubmit = async (e) => {
     e.preventDefault();
     try {
-
       const url = `/api/getAddresses?postcode=${postCode}&streetnumber=${houseNumber}`;
       const response = await fetch(url);
-     
+
       if (!response.ok) {
         throw new Error(`Request failed with status ${response.status}`);
       }
 
       const data = await response.json();
       console.log(data);
-      const transformedAddresses = [data].map((address) => transformAddress({ ...address, houseNumber }));
-     
+      const transformedAddresses = [data].map((address) =>
+        transformAddress({ ...address, houseNumber })
+      );
+
       setAddresses(transformedAddresses);
       setSelectedAddress(transformedAddresses[0]); // Select the first address by default
       // load saved address
       const foundAddress = addresses.find(
         (address) => address.id === selectedAddress
       );
-
     } catch (error) {
       setError(error.message);
     }
   };
 
   const handlePersonSubmit = (e) => {
-      e.preventDefault();
-  
-      if (!selectedAddress || !addresses.length) {
-        setError(
-          "No address selected, try to select an address or find one if you haven't"
-        );
-        return;
-      }
-  
-      const foundAddress = addresses.find(
-        (address) => address.id === selectedAddress
+    e.preventDefault();
+
+    if (!selectedAddress || !addresses.length) {
+      setError(
+        "No address selected, try to select an address or find one if you haven't"
       );
-  
-      addAddress({ ...foundAddress, firstName, lastName, postCode, houseNumber });
+      return;
+    }
+
+    const foundAddress = addresses.find(
+      (address) => address.id === selectedAddress
+    );
+
+    addAddress({ ...foundAddress, firstName, lastName, postCode, houseNumber });
   };
-  
-  
 
   const handleClearForm = () => {
     setAddresses([]);
     setSelectedAddress(undefined);
     setError(undefined);
-    fields.postCode = '';
-    fields.houseNumber = '';
-    fields.firstName = '';
-    fields.lastName = '';
+    fields.postCode = "";
+    fields.houseNumber = "";
+    fields.firstName = "";
+    fields.lastName = "";
   };
-  
+
+  const handleAddressChange = (e) => {
+    setSelectedAddress(e.target.value);
+  };
+
+  const addressOptions = addresses.map((address) => ({
+    label: `${address.street}, ${address.city}`,
+    value: address.id,
+    checked: address.id === selectedAddress,
+  }));
 
   return (
     <main>
@@ -106,7 +114,12 @@ function App() {
             Enter an address by postcode add personal info and done! 👏
           </small>
         </h1>
-        <Form legend="🏠 Find an address" onSubmit={handleAddressSubmit}>
+
+        <Form
+          name="Find"
+          legend="🏠 Find an address"
+          onSubmit={handleAddressSubmit}
+        >
           <div className={styles.formRow}>
             <InputText
               name="postCode"
@@ -124,9 +137,23 @@ function App() {
             />
           </div>
         </Form>
+        {addresses.length > 0 &&
+          addresses.map((address) => {
+            return (
+              <Radio
+                name="selectedAddress"
+                id={address.id}
+                key={address.id}
+                onChange={handleSelectedAddressChange}
+              >
+                <Address address={address} />
+              </Radio>
+            );
+          })}
 
         {selectedAddress && (
           <Form
+            name="Add to address book"
             legend="✏️ Add personal info to address"
             onSubmit={handlePersonSubmit}
           >
@@ -157,7 +184,7 @@ function App() {
           variant="secondary"
           clear={true}
         >
-          Clear All
+          Clear all Fields
         </Button>
       </Section>
 

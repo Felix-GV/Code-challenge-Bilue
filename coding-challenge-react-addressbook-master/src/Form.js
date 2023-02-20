@@ -3,15 +3,20 @@ import PropTypes from "prop-types";
 import * as styles from "../styles/App.module.css";
 import Button from "./ui/components/Button/Button";
 
-const Form = ({ legend, onSubmit, children }) => {
+const Form = ({ name, legend, onSubmit, children }) => {
   return (
     <form className={styles.form} onSubmit={onSubmit}>
       <fieldset>
         <legend className={styles.legend}>{legend}</legend>
         {children}
         <div className={styles.formRow}>
-          <Button type="button" onClick={onSubmit} variant="primary">
-            Submit
+          <Button
+            type="button"
+            onClick={onSubmit}
+            variant="primary"
+            className={name}
+          >
+            {name}
           </Button>
         </div>
       </fieldset>
