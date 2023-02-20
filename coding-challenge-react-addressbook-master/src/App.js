@@ -142,8 +142,7 @@ function App() {
           </Form>
         )}
 
-        {/* TODO: Create an <ErrorMessage /> component for displaying an error message */}
-        {error && <div className="error">{error}</div>}
+        {error && <ErrorMessage message={error} />}
 
         {/* TODO: Add a button to clear all form fields. Button must look different from the default primary button, see design. */}
       </Section>
