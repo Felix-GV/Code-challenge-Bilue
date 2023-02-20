@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import Address from "./ui/components/Address/Address";
 import AddressBook from "./ui/components/AddressBook/AddressBook";
@@ -8,113 +8,93 @@ import Radio from "./ui/components/Radio/Radio";
 import Section from "./ui/components/Section/Section";
 import transformAddress from "./core/models/address";
 import useAddressBook from "./ui/hooks/useAddressBook";
+import useFormFields from "./ui/hooks/useFormField";
 import Form from "./Form";
 import ErrorMessage from "./ui/components/ErrorMessage/ErrorMessage";
 
 import * as styles from "../styles/App.module.css";
 
 function App() {
-  /**
-   * Form fields states
-   * TODO: Write a custom hook to set form fields in a more generic way:
-   * - Hook must expose an onChange handler to be used by all <InputText /> and <Radio /> components
-   * - Hook must expose all text form field values, like so: { postCode: '', houseNumber: '', ...etc }
-   * - Remove all individual React.useState
-   * - Remove all individual onChange handlers, like handlePostCodeChange for example
-   */
-  const [postCode, setPostCode] = React.useState("");
-  const [houseNumber, setHouseNumber] = React.useState("");
-  const [firstName, setFirstName] = React.useState("");
-  const [lastName, setLastName] = React.useState("");
-  const [selectedAddress, setSelectedAddress] = React.useState("");
-  // TODO: setIsLoading
 
-  /**
-   * Results states
-   */
-  const [error, setError] = React.useState(undefined);
-  const [addresses, setAddresses] = React.useState([]);
-  /**
-   * Redux actions
-   */
-  const { addAddress, removeAddress } = useAddressBook();
+  const { fields, handleFieldChange } = useFormFields({
+    postCode: '',
+    houseNumber: '',
+    firstName: '',
+    lastName: '',
+  });
 
-  /**
-   * Text fields onChange handlers
-   */
-  const handlePostCodeChange = (e) => setPostCode(e.target.value);
+  const { loadSavedAddresses, addAddress } = useAddressBook();
 
-  const handleHouseNumberChange = (e) => setHouseNumber(e.target.value);
+  const { postCode, houseNumber, firstName, lastName } = fields;
+  
+  const handlePostCodeChange = handleFieldChange;
+  
+  const handleHouseNumberChange = handleFieldChange;
+  
+  const handleFirstNameChange = handleFieldChange;
+  
+  const handleLastNameChange = handleFieldChange;
 
-  const handleFirstNameChange = (e) => setFirstName(e.target.value);
-
-  const handleLastNameChange = (e) => setLastName(e.target.value);
-
-  const handleSelectedAddressChange = (e) => setSelectedAddress(e.target.value);
+  const [error, setError] = useState(undefined);
+  const [addresses, setAddresses] = useState([]);
+  const [selectedAddress, setSelectedAddress] = useState('');
 
   const handleAddressSubmit = async (e) => {
     e.preventDefault();
-    // setIsLoading(true);
     try {
-      const response = await fetch(
-        `/api/getAddresses?postcode=${postCode}&streetnumber=${houseNumber}`
-      );
+
+      const url = `/api/getAddresses?postcode=${postCode}&streetnumber=${houseNumber}`;
+      const response = await fetch(url);
+     
       if (!response.ok) {
-        throw new Error("Failed to fetch addresses");
+        throw new Error(`Request failed with status ${response.status}`);
       }
+
       const data = await response.json();
-      const transformedAddresses = data.map((address) =>
-        transformAddress(address, houseNumber)
-      );
+      console.log(data);
+      const transformedAddresses = [data].map((address) => transformAddress({ ...address, houseNumber }));
+     
       setAddresses(transformedAddresses);
-      setSelectedAddress(null);
-      // setIsLoading(false);
+      setSelectedAddress(transformedAddresses[0]); // Select the first address by default
+      // load saved address
+      const foundAddress = addresses.find(
+        (address) => address.id === selectedAddress
+      );
+
     } catch (error) {
-      console.error(error);
-      setError("Failed to fetch addresses. Please try again later.");
-      // setIsLoading(false);
+      setError(error.message);
     }
   };
 
   const handlePersonSubmit = (e) => {
-    e.preventDefault();
-
-    if (!selectedAddress || !addresses.length) {
-      setError(
-        "No address selected, try to select an address or find one if you haven't"
+      e.preventDefault();
+  
+      if (!selectedAddress || !addresses.length) {
+        setError(
+          "No address selected, try to select an address or find one if you haven't"
+        );
+        return;
+      }
+  
+      const foundAddress = addresses.find(
+        (address) => address.id === selectedAddress
       );
-      return;
-    }
-
-    const foundAddress = addresses.find(
-      (address) => address.id === selectedAddress
-    );
-
-    // Check for duplicate address
-    const isDuplicate = addresses.some(
-      (address) =>
-        address.postCode === foundAddress.postCode &&
-        address.houseNumber === foundAddress.houseNumber &&
-        address.firstName === firstName &&
-        address.lastName === lastName
-    );
+  
+      addAddress({ ...foundAddress, firstName, lastName, postCode, houseNumber });
   };
   
-  const handleRemoveAddress = (addressId) => {
-    setAddresses((prevAddresses) =>
-      prevAddresses.filter((address) => address.id !== addressId)
-    );
-  };
   
+
   const handleClearForm = () => {
-    setPostCode("");
-    setHouseNumber("");
-    setFirstName("");
-    setLastName("");
-    setSelectedAddress("");
-    setError(undefined);
     setAddresses([]);
+    setSelectedAddress(undefined);
+    setError(undefined);
+    fields.postCode = '';
+    fields.houseNumber = '';
+    fields.firstName = '';
+    fields.lastName = '';
   };
+  
 
   return (
     <main>

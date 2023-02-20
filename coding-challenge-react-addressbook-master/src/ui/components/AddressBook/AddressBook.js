@@ -35,8 +35,10 @@ const AddressBook = () => {
                   </div>
                   <div className={$.remove}>
                     <Button
+                      type="button"
                       variant="secondary"
                       onClick={() => removeAddress(address.id)}
+                      clear={true}
                     >
                       Remove
                     </Button>
