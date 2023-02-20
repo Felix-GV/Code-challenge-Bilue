@@ -50,14 +50,26 @@ function App() {
 
   const handleAddressSubmit = async (e) => {
     e.preventDefault();
-
-    /** TODO: Fetch addresses based on houseNumber and postCode using the local BE api
-     * - Example URL of API: /api/getAddresses?postcode=1345&streetnumber=350
-     * - Handle errors if they occur
-     * - Handle successful response by updating the `addresses` in the state using `setAddresses`
-     * - Make sure to add the houseNumber to each found address in the response using `transformAddress()` function
-     * - Bonus: Add a loading state in the UI while fetching addresses
-     */
+    setIsLoading(true);
+    try {
+      const response = await fetch(
+        `/api/getAddresses?postcode=${postCode}&streetnumber=${houseNumber}`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch addresses");
+      }
+      const data = await response.json();
+      const transformedAddresses = data.map((address) =>
+        transformAddress(address, houseNumber)
+      );
+      setAddresses(transformedAddresses);
+      setSelectedAddress(null);
+      setIsLoading(false);
+    } catch (error) {
+      console.error(error);
+      setError("Failed to fetch addresses. Please try again later.");
+      setIsLoading(false);
+    }
   };
 
   const handlePersonSubmit = (e) => {
