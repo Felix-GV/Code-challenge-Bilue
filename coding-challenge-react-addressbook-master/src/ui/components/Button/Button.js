@@ -1,5 +1,4 @@
 import React from "react";
-
 import $ from "./Button.module.css";
 
 const Button = ({
@@ -7,13 +6,20 @@ const Button = ({
   onClick,
   type = "button",
   variant = "primary", // or 'secondary'
+  clear = false,
 }) => {
+  const className =
+    variant === "primary"
+      ? $.primary
+      : variant === "secondary"
+      ? $.secondary
+      : "";
+
+  const clearClass = clear ? $.clear : "";
+
   return (
     <button
-      // TODO: Add conditional classNames
-      // - Must have a condition to set the '.primary' className
-      // - Must have a condition to set the '.secondary' className
-      className={$.button}
+      className={`${$.button} ${className} ${clearClass}`}
       type={type}
       onClick={onClick}
     >

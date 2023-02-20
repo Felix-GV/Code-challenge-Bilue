@@ -8,6 +8,8 @@ import Radio from "./ui/components/Radio/Radio";
 import Section from "./ui/components/Section/Section";
 import transformAddress from "./core/models/address";
 import useAddressBook from "./ui/hooks/useAddressBook";
+import Form from "./ui/components/Form/Form";
+import ErrorMessage from "./ui/components/ErrorMessage/ErrorMessage";
 
 import * as styles from "../styles/App.module.css";
 
@@ -25,6 +27,9 @@ function App() {
   const [firstName, setFirstName] = React.useState("");
   const [lastName, setLastName] = React.useState("");
   const [selectedAddress, setSelectedAddress] = React.useState("");
+  // TODO: setIsLoading
+  const [isLoading, setIsLoading] = React.useState("");
+
   /**
    * Results states
    */
@@ -89,6 +94,16 @@ function App() {
     addAddress({ ...foundAddress, firstName, lastName });
   };
 
+  const handleClearForm = () => {
+    setPostCode("");
+    setHouseNumber("");
+    setFirstName("");
+    setLastName("");
+    setSelectedAddress("");
+    setError(undefined);
+    setAddresses([]);
+  };
+
   return (
     <main>
       <Section>
@@ -144,7 +159,14 @@ function App() {
 
         {error && <ErrorMessage message={error} />}
 
-        {/* TODO: Add a button to clear all form fields. Button must look different from the default primary button, see design. */}
+        <Button
+          type="button"
+          onClick={handleClearForm}
+          variant="secondary"
+          clear={true}
+        >
+          Clear All
+        </Button>
       </Section>
 
       <Section variant="dark">
