@@ -8,7 +8,7 @@ import Radio from "./ui/components/Radio/Radio";
 import Section from "./ui/components/Section/Section";
 import transformAddress from "./core/models/address";
 import useAddressBook from "./ui/hooks/useAddressBook";
-import Form from "./ui/components/Form/Form";
+import Form from "./Form";
 import ErrorMessage from "./ui/components/ErrorMessage/ErrorMessage";
 
 import * as styles from "../styles/App.module.css";
@@ -28,7 +28,6 @@ function App() {
   const [lastName, setLastName] = React.useState("");
   const [selectedAddress, setSelectedAddress] = React.useState("");
   // TODO: setIsLoading
-  const [isLoading, setIsLoading] = React.useState("");
 
   /**
    * Results states
@@ -38,7 +37,7 @@ function App() {
   /**
    * Redux actions
    */
-  const { addAddress } = useAddressBook();
+  const { addAddress, removeAddress } = useAddressBook();
 
   /**
    * Text fields onChange handlers
@@ -55,7 +54,7 @@ function App() {
 
   const handleAddressSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
+    // setIsLoading(true);
     try {
       const response = await fetch(
         `/api/getAddresses?postcode=${postCode}&streetnumber=${houseNumber}`
@@ -69,11 +68,11 @@ function App() {
       );
       setAddresses(transformedAddresses);
       setSelectedAddress(null);
-      setIsLoading(false);
+      // setIsLoading(false);
     } catch (error) {
       console.error(error);
       setError("Failed to fetch addresses. Please try again later.");
-      setIsLoading(false);
+      // setIsLoading(false);
     }
   };
 
@@ -91,9 +90,22 @@ function App() {
       (address) => address.id === selectedAddress
     );
 
-    addAddress({ ...foundAddress, firstName, lastName });
+    // Check for duplicate address
+    const isDuplicate = addresses.some(
+      (address) =>
+        address.postCode === foundAddress.postCode &&
+        address.houseNumber === foundAddress.houseNumber &&
+        address.firstName === firstName &&
+        address.lastName === lastName
+    );
   };
-
+  
+  const handleRemoveAddress = (addressId) => {
+    setAddresses((prevAddresses) =>
+      prevAddresses.filter((address) => address.id !== addressId)
+    );
+  };
+  
   const handleClearForm = () => {
     setPostCode("");
     setHouseNumber("");
