@@ -16,7 +16,7 @@ import * as styles from "../styles/App.module.css";
 
 function App() {
   const { fields, handleFieldChange } = useFormFields({
-    postCode: "",
+    postcode: "",
     houseNumber: "",
     firstName: "",
     lastName: "",
@@ -24,7 +24,7 @@ function App() {
 
   const { loadSavedAddresses, addAddress } = useAddressBook();
 
-  const { postCode, houseNumber, firstName, lastName } = fields;
+  const { postcode, houseNumber, firstName, lastName } = fields;
 
   const handlePostCodeChange = handleFieldChange;
 
@@ -42,29 +42,36 @@ function App() {
 
   const handleAddressSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const url = `/api/getAddresses?postcode=${postCode}&streetnumber=${houseNumber}`;
-      const response = await fetch(url);
-
-      if (!response.ok) {
-        throw new Error(`Request failed with status ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log(data);
-      const transformedAddresses = [data].map((address) =>
-        transformAddress({ ...address, houseNumber })
-      );
-
-      setAddresses(transformedAddresses);
-      setSelectedAddress(transformedAddresses[0]); // Select the first address by default
-      // load saved address
-      const foundAddress = addresses.find(
-        (address) => address.id === selectedAddress
-      );
-    } catch (error) {
-      setError(error.message);
+    if (!postcode || !houseNumber) {
+      setError("Please fill in both fields");
+      return;
     }
+
+    const url = `/api/getAddresses?postcode=${postcode}&streetnumber=${houseNumber}`;
+    const response = await fetch(url);
+
+    const data = await response.json();
+    console.log(data);
+
+    if (data.length === 0) {
+      setError("No addresses found, please try again");
+      return;
+    }
+
+    const transformedAddresses = [data].map((address) => {
+      const street = address.street;
+      const city = address.city;
+      return transformAddress({
+        ...address,
+        street,
+        houseNumber,
+        postcode,
+        city,
+      });
+    });
+
+    setAddresses(transformedAddresses);
+    setSelectedAddress(transformedAddresses[0].id);
   };
 
   const handlePersonSubmit = (e) => {
@@ -81,14 +88,14 @@ function App() {
       (address) => address.id === selectedAddress
     );
 
-    addAddress({ ...foundAddress, firstName, lastName, postCode, houseNumber });
+    addAddress({ ...foundAddress, firstName, lastName, postcode, houseNumber });
   };
 
   const handleClearForm = () => {
     setAddresses([]);
     setSelectedAddress(undefined);
     setError(undefined);
-    fields.postCode = "";
+    fields.postcode = "";
     fields.houseNumber = "";
     fields.firstName = "";
     fields.lastName = "";
@@ -119,13 +126,14 @@ function App() {
           name="Find"
           legend="🏠 Find an address"
           onSubmit={handleAddressSubmit}
+          variant="primary"
         >
           <div className={styles.formRow}>
             <InputText
-              name="postCode"
+              name="postcode"
               onChange={handlePostCodeChange}
               placeholder="Post Code"
-              value={postCode}
+              value={postcode}
             />
           </div>
           <div className={styles.formRow}>
@@ -156,6 +164,7 @@ function App() {
             name="Add to address book"
             legend="✏️ Add personal info to address"
             onSubmit={handlePersonSubmit}
+            variant="primary"
           >
             <div className={styles.formRow}>
               <InputText

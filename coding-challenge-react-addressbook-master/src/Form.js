@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import * as styles from "../styles/App.module.css";
 import Button from "./ui/components/Button/Button";
 
-const Form = ({ name, legend, onSubmit, children }) => {
+const Form = ({ name, legend, onSubmit, children, variant }) => {
   return (
     <form className={styles.form} onSubmit={onSubmit}>
       <fieldset>
@@ -13,7 +13,7 @@ const Form = ({ name, legend, onSubmit, children }) => {
           <Button
             type="button"
             onClick={onSubmit}
-            variant="primary"
+            variant={variant}
             className={name}
           >
             {name}
