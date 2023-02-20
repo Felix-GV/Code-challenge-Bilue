@@ -87,66 +87,47 @@ function App() {
             Enter an address by postcode add personal info and done! 👏
           </small>
         </h1>
-        {/* TODO: Create generic <Form /> component to display form rows, legend and a submit button  */}
-        <form onSubmit={handleAddressSubmit}>
-          <fieldset>
-            <legend>🏠 Find an address</legend>
-            <div className={styles.formRow}>
-              <InputText
-                name="postCode"
-                onChange={handlePostCodeChange}
-                placeholder="Post Code"
-                value={postCode}
-              />
-            </div>
-            <div className={styles.formRow}>
-              <InputText
-                name="houseNumber"
-                onChange={handleHouseNumberChange}
-                value={houseNumber}
-                placeholder="House number"
-              />
-            </div>
-            <Button type="submit">Find</Button>
-          </fieldset>
-        </form>
-        {addresses.length > 0 &&
-          addresses.map((address) => {
-            return (
-              <Radio
-                name="selectedAddress"
-                id={address.id}
-                key={address.id}
-                onChange={handleSelectedAddressChange}
-              >
-                <Address address={address} />
-              </Radio>
-            );
-          })}
-        {/* TODO: Create generic <Form /> component to display form rows, legend and a submit button  */}
+        <Form legend="🏠 Find an address" onSubmit={handleAddressSubmit}>
+          <div className={styles.formRow}>
+            <InputText
+              name="postCode"
+              onChange={handlePostCodeChange}
+              placeholder="Post Code"
+              value={postCode}
+            />
+          </div>
+          <div className={styles.formRow}>
+            <InputText
+              name="houseNumber"
+              onChange={handleHouseNumberChange}
+              value={houseNumber}
+              placeholder="House number"
+            />
+          </div>
+        </Form>
+
         {selectedAddress && (
-          <form onSubmit={handlePersonSubmit}>
-            <fieldset>
-              <legend>✏️ Add personal info to address</legend>
-              <div className={styles.formRow}>
-                <InputText
-                  name="firstName"
-                  placeholder="First name"
-                  onChange={handleFirstNameChange}
-                  value={firstName}
-                />
-              </div>
-              <div className={styles.formRow}>
-                <InputText
-                  name="lastName"
-                  placeholder="Last name"
-                  onChange={handleLastNameChange}
-                  value={lastName}
-                />
-              </div>
-              <Button type="submit">Add to addressbook</Button>
-            </fieldset>
-          </form>
+          <Form
+            legend="✏️ Add personal info to address"
+            onSubmit={handlePersonSubmit}
+          >
+            <div className={styles.formRow}>
+              <InputText
+                name="firstName"
+                placeholder="First name"
+                onChange={handleFirstNameChange}
+                value={firstName}
+              />
+            </div>
+            <div className={styles.formRow}>
+              <InputText
+                name="lastName"
+                placeholder="Last name"
+                onChange={handleLastNameChange}
+                value={lastName}
+              />
+            </div>
+          </Form>
         )}
 
         {/* TODO: Create an <ErrorMessage /> component for displaying an error message */}
